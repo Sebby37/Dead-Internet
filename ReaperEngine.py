@@ -16,10 +16,9 @@ class ReaperEngine:
         self.max_tokens = 4096
         self.system_prompt = "You are an expert in creating realistic webpages. You do not create sample pages, instead you create webpages that are completely realistic and look as if they really existed on the web. You do not respond with anything but HTML, starting your messages with <!DOCTYPE html> and ending them with </html>. If a requested page is not a HTML document, for example a CSS or Javascript file, write that language instead of writing any HTML. If the requested page is instead an image file or other non-text resource, attempt to generate an appropriate resource for it instead of writing any HTML. You use very little to no images at all in your HTML, CSS or JS."
     
-    def _sanitize_links(self, dirty_html):
-        # Teensy function to replace all links on the page so they link to the root of the server
+    def _format_page(self, dirty_html):
+        # Teensy function to sanitize links on the page so they link to the root of the server
         # Also to get rid of any http(s), this'll help make the link database more consistent
-        
         soup = BeautifulSoup(dirty_html, "html.parser")
         for a in soup.find_all("a"):
             print(a["href"])
@@ -28,6 +27,16 @@ class ReaperEngine:
             a["href"] = a["href"].replace("http://", "")
             a["href"] = a["href"].replace("https://", "")
             a["href"] = "/" + a["href"]
+
+        # Create a new 'a' tag for the Home button
+        home_button = soup.new_tag("a", href="/")
+        home_button.string = "Home"
+
+        # Insert the Home button at the start of the body element
+        body = soup.body
+        if body:
+            body.insert(0, home_button)
+
         return str(soup)
     
     def get_index(self):
@@ -35,7 +44,6 @@ class ReaperEngine:
         with open("index.html", "r") as file:
             return file.read()
 
-    
     def get_page(self, url, path, query=None):
         # Return already generated page if already generated page
         try: return self.internet_db[url][path]
@@ -68,10 +76,10 @@ class ReaperEngine:
         generated_page = generated_page_completion.choices[0].message.content
         if not url in self.internet_db:
             self.internet_db[url] = dict()
-        self.internet_db[url][path] = self._sanitize_links(generated_page)
+        self.internet_db[url][path] = self._format_page(generated_page)
 
         open("curpage.html", "w+").write(generated_page)
-        return self._sanitize_links(generated_page)
+        return self._format_page(generated_page)
     
     def get_search(self, query):
         # Generates a cool little search page, this differs in literally every search and is not cached so be weary of losing links
@@ -89,7 +97,7 @@ class ReaperEngine:
             max_tokens=self.max_tokens
         )
 
-        return self._sanitize_links(search_page_completion.choices[0].message.content)
+        return self._format_page(search_page_completion.choices[0].message.content)
 
     def export_internet(self, filename="internet.json"):
         json.dump(self.internet_db, open(filename, "w+"))
