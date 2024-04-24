@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        h3 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input[type='text'] {
+            width: 400px;
+            height: 40px;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+        }
+        input[type='submit'] {
+            width: 100px;
+            height: 40px;
+            background-color: #e0e0e0;
+            border: 1px solid #f8f9fa;
+            color: black;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type='submit']:hover {
+            background-color: #c0c0c0;
+        }
+    </style>
+</head>
+<body>
+    <form action='/'>
+        <h3>Enter the Dead Internet</h3>
+        <input type='text' name='query' placeholder='Search'>
+        <input type='submit' value='Search'>
+    </form>
+</body>
+</html>

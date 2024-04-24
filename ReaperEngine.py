@@ -31,8 +31,10 @@ class ReaperEngine:
         return str(soup)
     
     def get_index(self):
-        # Super basic start page, just to get everything going
-        return "<!DOCTYPE html><html><body><h3>Enter the Dead Internet</h3><form action='/' ><input name='query'> <input type='submit' value='Search'></form></body></html>"
+        # Load the HTML content from index.html
+        with open("index.html", "r") as file:
+            return file.read()
+
     
     def get_page(self, url, path, query=None):
         # Return already generated page if already generated page
