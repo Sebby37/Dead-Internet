@@ -1,0 +1,73 @@
+/* Body and overall layout styles */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Form styling */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Heading styles */
+h3 {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+/* Text input styles */
+input[type='text'] {
+    width: 400px;
+    height: 40px;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+}
+
+/* Submit button styles */
+input[type='submit'] {
+    width: 100px;
+    height: 40px;
+    background-color: #e0e0e0;
+    border: 1px solid #f8f9fa;
+    color: black;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+input[type='submit']:hover {
+    background-color: #c0c0c0;
+}
+
+/* Home button styles */
+.home-button {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 10px 20px;
+    background-color: #007BFF; 
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.home-button:hover, .home-button:focus {
+    background-color: #0056b3; 
+    box-shadow: 2px 2px 12px rgba(0,0,0,0.2);
+    outline: none;
+}
