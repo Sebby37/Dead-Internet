@@ -54,7 +54,7 @@ class ReaperEngine:
             print(f"Error fetching image: {e}")
             return "https://via.placeholder.com/100"
 
-    def _sanitize_html(self, dirty_html):
+    def _format_html(self, dirty_html):
         # Teensy function to replace all links on the page so they link to the root of the server
         # Also to get rid of any http(s), this'll help make the link database more consistent
 
@@ -122,10 +122,10 @@ class ReaperEngine:
         generated_page = generated_page_completion.choices[0].message.content
         if not url in self.internet_db:
             self.internet_db[url] = dict()
-        self.internet_db[url][path] = self._sanitize_html(generated_page)
+        self.internet_db[url][path] = self._format_html(generated_page)
 
         open("curpage.html", "w+").write(generated_page)
-        return self._sanitize_html(generated_page)
+        return self._format_html(generated_page)
 
     def get_search(self, query):
         # Generates a cool little search page, this differs in literally every search and is not cached so be weary of losing links
@@ -143,7 +143,7 @@ class ReaperEngine:
             max_tokens=self.max_tokens
         )
 
-        return self._sanitize_html(search_page_completion.choices[0].message.content)
+        return self._format_html(search_page_completion.choices[0].message.content)
 
     def export_internet(self, filename="internet.json"):
         json.dump(self.internet_db, open(filename, "w+"))
