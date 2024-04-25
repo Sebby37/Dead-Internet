@@ -22,5 +22,9 @@ You can modify the API URL and API key in the `.env` file.
 
 Once those are installed, simply run the main.py file and navigate to http://127.0.0.1:5000 or whatever URL Flask gives you and have fun!
 
+## Image Support
+
+Optional image support is implemented using the [SearXNG](https://docs.searxng.org/) search engine. To enable it, set the `ENABLE_IMAGES` environment variable to `true` and provide a URL in the `SEARXNG_URL` environment variable to your SearXNG instance. This does require you to have the JSON format enabled in your `settings.yml`, which is not by default.
+
 ## Inspiration
 I'll admit it, I'm not the most creative person. I got this idea from [this reddit comment on r/localllama](https://new.reddit.com/r/LocalLLaMA/comments/1c6ejb8/comment/l02eeqx/), so thank you very much commenter!
