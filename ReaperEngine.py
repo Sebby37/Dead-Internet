@@ -1,15 +1,19 @@
+import os
 import json
 from openai import OpenAI
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 
 ''' About the name...
 I apologise for it sounding pretentious or whatever, but I dont care it sounds cool and cyberpunk-y(-ish)
 and fits with the Dead Internet Theory theme of this little project
 '''
 
+load_dotenv()
+
 class ReaperEngine:
     def __init__(self):
-        self.client = OpenAI(base_url="http://localhost:11434/v1/", api_key="Dead Internet") # Ollama is pretty cool
+        self.client = OpenAI(base_url=os.getenv("BASE_URL"), api_key=os.getenv("API_KEY")) # Ollama is pretty cool
         self.internet_db = dict() # TODO: Exporting this sounds like a good idea, losing all your pages when you kill the script kinda sucks ngl, also loading it is a thing too
 
         self.temperature = 2.1 # Crank up for goofier webpages (but probably less functional javascript)
