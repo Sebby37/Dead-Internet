@@ -6,6 +6,8 @@ from openai import OpenAI
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
+from dotenv import load_dotenv
+
 
 ''' About the name...
 I apologise for it sounding pretentious or whatever, but I dont care it sounds cool and cyberpunk-y(-ish)
@@ -21,14 +23,17 @@ class ReaperEngine:
 
         self.temperature = 2.1 # Crank up for goofier webpages (but probably less functional javascript)
         self.max_tokens = 4096
+
         self.enable_images = bool(os.getenv("ENABLE_IMAGES"))
 
-        self.system_prompt = "You are an expert in creating realistic webpages. You do not create sample pages, instead you create webpages that are completely realistic and look as if they really existed on the web. You do not respond with anything but HTML, starting your messages with <!DOCTYPE html> and ending them with </html>. If a requested page is not a HTML document, for example a CSS or Javascript file, write that language instead of writing any HTML."
+        self.system_prompt = "You are an expert in creating realistic webpages. You do not create sample pages, instead you create webpages that are completely realistic and look as if they really existed on the web. You do not respond with anything but HTML, starting your messages with <!DOCTYPE html> and ending them with </html>."
 
         if self.enable_images:
-            self.system_prompt += " If the requested page is an image file, with an alt tag. Images should always have an alt tag. Images should always have a width attribute. If the requested page is instead an other non-text resource, attempt to generate an appropriate resource for it instead of writing any HTML."
+            self.system_prompt += " If the requested page is an image file, with an alt tag. Images should always have an alt tag. Images should always have a width attribute."
         else:
-            self.system_prompt += " If the requested page is instead an image file or other non-text resource, attempt to generate an appropriate resource for it instead of writing any HTML. You use very little to no images at all in your HTML, CSS or JS."
+            self.system_prompt += " You use very little to no images at all in your HTML, CSS or JS, and when you do use an image it'll be linked from a real website instead."
+
+        self.system_prompt += " Link to very few external resources, CSS and JS should ideally be internal in <style>/<script> tags and not linked from elsewhere."
 
     def image_search(self, keyword):
         # URL of the SearXNG API
@@ -90,13 +95,13 @@ class ReaperEngine:
         # Super basic start page, just to get everything going
         return "<!DOCTYPE html><html><body><h3>Enter the Dead Internet</h3><form action='/' ><input name='query'> <input type='submit' value='Search'></form></body></html>"
 
-    def get_page(self, url, path, query=None):
+    def get_page(self, url, path, search_query=None):
         # Return already generated page if already generated page
         try: return self.internet_db[url][path]
         except: pass
 
         # Construct the basic prompt
-        prompt = f"Give me a classic geocities-style webpage from the fictional site of '{url}' at the resource path of '{path}'. Make sure all links generated either link to an external website, or if they link to another resource on the current website have the current url prepended ({url}) to them. For example if a link on the page has the href of 'help' or '/help', it should be replaced with '{url}/path'."
+        prompt = f"Give me a classic geocities-style webpage from the fictional site of '{url}' at the resource path of '{path}'. Make sure all links generated either link to an external website, or if they link to another resource on the current website have the current url prepended ({url}) to them. For example if a link on the page has the href of 'help' or '/help', it should be replaced with '{url}/path'. All your links must use absolute paths, do not shorten anything. Make the page look nice and unique using internal CSS stylesheets, don't make the pages look boring or generic."
         # TODO: I wanna add all other pages to the prompt so the next pages generated resemble them, but since Llama 3 is only 8k context I hesitate to do so
 
         # Add other pages to the prompt if they exist
@@ -118,14 +123,17 @@ class ReaperEngine:
             max_tokens=self.max_tokens
         )
 
-        # Add the page to the database
+        # Get and format the page
         generated_page = generated_page_completion.choices[0].message.content
+        open("curpage.html", "w+").write(generated_page)
+        generated_page = self._format_page(generated_page)
+
+        # Add the page to the database
         if not url in self.internet_db:
             self.internet_db[url] = dict()
-        self.internet_db[url][path] = self._format_page(generated_page)
+        self.internet_db[url][path] = generated_page
 
-        open("curpage.html", "w+").write(generated_page)
-        return self._format_page(generated_page)
+        return generated_page
 
     def get_search(self, query):
         # Generates a cool little search page, this differs in literally every search and is not cached so be weary of losing links
@@ -136,7 +144,7 @@ class ReaperEngine:
             },
             {
                 "role": "user",
-                "content": f"Generate the search results page for a ficticious search engine where the search query is '{query}'. Please include at least 10 results to different ficticious websites that relate to the query. DO NOT link to any real websites, every link should lead to a ficticious website. Feel free to add a bit of CSS to make the page look nice. Each search result will link to its own unique website that has nothing to do with the search engine. Make sure each ficticious website has a unique and somewhat creative URL. Don't mention that the results are ficticious."
+                "content": f"Generate the search results page for a ficticious search engine where the search query is '{query}'. Please include at least 10 results to different ficticious websites that relate to the query. DO NOT link to any real websites, every link should lead to a ficticious website. Feel free to add a bit of CSS to make the page look nice. Each search result will link to its own unique website that has nothing to do with the search engine and is not a path or webpage on the search engine's site. Make sure each ficticious website has a unique and somewhat creative URL. Don't mention that the results are ficticious."
             }],
             model="llama3",
             temperature=self.temperature,

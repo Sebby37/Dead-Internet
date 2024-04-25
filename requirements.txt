@@ -1,4 +1,4 @@
-flask
-openai
 beautifulsoup4
+Flask
+openai
 python-dotenv
