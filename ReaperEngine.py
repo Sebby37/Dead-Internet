@@ -96,7 +96,7 @@ class ReaperEngine:
         except: pass
 
         # Construct the basic prompt
-        prompt = f"Give me a classic geocities-style webpage from the fictional site of '{url}' at the resource path of '{path}'. Make sure all links generated either link to an external website, or if they link to another resource on the current website have the current url prepended ({url}) to them. For example if a link on the page has the href of 'help' or '/help', it should be replaced with '{url}/path'."
+        prompt = f"Give me a classic geocities-style webpage from the fictional site of '{url}' at the resource path of '{path}'. Make sure all links generated either link to an external website, or if they link to another resource on the current website have the current url prepended ({url}) to them. For example if a link on the page has the href of 'help' or '/help', it should be replaced with '{url}/path'. All your links must use absolute paths, do not shorten anything. Make the page look nice and unique using internal CSS stylesheets, don't make the pages look boring or generic."
         # TODO: I wanna add all other pages to the prompt so the next pages generated resemble them, but since Llama 3 is only 8k context I hesitate to do so
 
         # Add other pages to the prompt if they exist
@@ -118,8 +118,12 @@ class ReaperEngine:
             max_tokens=self.max_tokens
         )
 
-        # Add the page to the database
+        # Get and format the page
         generated_page = generated_page_completion.choices[0].message.content
+        open("curpage.html", "w+").write(generated_page)
+        generated_page = self._format_page(generated_page)
+
+        # Add the page to the database
         if not url in self.internet_db:
             self.internet_db[url] = dict()
         self.internet_db[url][path] = self._format_page(generated_page)
@@ -136,7 +140,7 @@ class ReaperEngine:
             },
             {
                 "role": "user",
-                "content": f"Generate the search results page for a ficticious search engine where the search query is '{query}'. Please include at least 10 results to different ficticious websites that relate to the query. DO NOT link to any real websites, every link should lead to a ficticious website. Feel free to add a bit of CSS to make the page look nice. Each search result will link to its own unique website that has nothing to do with the search engine. Make sure each ficticious website has a unique and somewhat creative URL. Don't mention that the results are ficticious."
+                "content": f"Generate the search results page for a ficticious search engine where the search query is '{query}'. Please include at least 10 results to different ficticious websites that relate to the query. DO NOT link to any real websites, every link should lead to a ficticious website. Feel free to add a bit of CSS to make the page look nice. Each search result will link to its own unique website that has nothing to do with the search engine and is not a path or webpage on the search engine's site. Make sure each ficticious website has a unique and somewhat creative URL. Don't mention that the results are ficticious."
             }],
             model="llama3",
             temperature=self.temperature,
