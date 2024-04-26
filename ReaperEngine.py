@@ -79,9 +79,13 @@ class ReaperEngine:
                 # Assign a random width between 100 and 300px if width is not present
                 img["width"] = str(random.randint(100, 300))
             else:
-                # Ensure the width does not exceed the max width
-                if int(img["width"]) > int(os.getenv("MAX_IMAGE_WIDTH")):
-                    img["width"] = os.getenv("MAX_IMAGE_WIDTH")
+                # Use regular expression to find digits in the width value
+                width = re.findall(r'\d+', img["width"])[0]
+                max_width = re.findall(r'\d+', os.getenv("MAX_IMAGE_WIDTH"))[0]
+
+                # Convert the extracted strings to integers
+                if int(width) > int(max_width):
+                    img["width"] = max_width
 
             alt_text = img.get("alt", "")
             new_src = self.image_search(alt_text)
